@@ -3,10 +3,15 @@ import { useSelector } from "react-redux";
 import CourseNavigation from "./Navigation";
 import Modules from "./Modules";
 import Home from "./Home";
+// import Quizzes from "./Quizzes";
 import Assignments from "./Assignments";
 import AssignmentEditor from "./Assignments/Editor";
 import { FaAlignJustify } from "react-icons/fa";
 import PeopleTable from "./People/index";
+
+import QuizList from "./Quizzes"; // index.tsx
+import QuizEditor from "./Quizzes/Editor"; // Editor.tsx
+
 
 export default function Courses() {
   const { cid } = useParams();
@@ -44,7 +49,10 @@ export default function Courses() {
             <Route path="Zoom" element={<h2>Zoom</h2>} />
             <Route path="Assignments" element={<Assignments />} />
             <Route path="Assignments/:aid" element={<AssignmentEditor />} />
-            <Route path="Quizzes" element={<h2>Quizzes</h2>} />
+            {/* <Route path="Quizzes" element={<h2>Quizzes</h2>} /> */}
+            <Route path="Quizzes" element={<QuizList />} />
+            <Route path="Quizzes/:qid" element={<QuizEditor />} />
+
             <Route path="People" element={<PeopleTable />} />
           </Routes>
         </div>
