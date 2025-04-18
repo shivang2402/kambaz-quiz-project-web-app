@@ -21,6 +21,7 @@ export interface Quiz {
   untilDate: string;
   questions: any[];
   isPublished: boolean;
+  points: number; 
 }
 
 interface QuizState {
