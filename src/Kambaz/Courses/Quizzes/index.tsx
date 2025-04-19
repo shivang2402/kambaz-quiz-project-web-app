@@ -176,7 +176,7 @@ import {
   Col,
   Dropdown,
 } from "react-bootstrap";
-import { fetchQuizzesForCourse, createQuizForCourse } from "./quizClient";
+import { fetchQuizzesForCourse, createQuizForCourse, deleteQuizOnServer } from "./quizClient";
 
 export default function QuizList() {
   const { cid } = useParams();
@@ -245,9 +245,15 @@ export default function QuizList() {
     dispatch(setQuizzes(updatedList));
   };
 
-  const handleDelete = (id: string) => {
-    dispatch(setQuizzes(courseQuizzes.filter((q: any) => q._id !== id)));
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteQuizOnServer(id);
+      dispatch(setQuizzes(courseQuizzes.filter((q: any) => q._id !== id)));
+    } catch (err) {
+      console.error("Failed to delete quiz:", err);
+    }
   };
+  
 
   return (
     <Container className="mt-4">

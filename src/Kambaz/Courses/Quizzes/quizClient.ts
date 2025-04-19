@@ -15,7 +15,7 @@ export const updateQuizOnServer = async (quiz: Quiz) => {
   return response.data;
 };
 
-export const deleteQuizFromServer = async (quizId: string) => {
+export const deleteQuizOnServer = async (quizId: string) => {
   const response = await axios.delete(`${QUIZZES_API}/${quizId}`);
   return response.data;
 };
@@ -24,3 +24,9 @@ export const fetchQuizzesForCourse = async (courseId: string) => {
   const response = await axios.get(`${QUIZZES_API}/course/${courseId}`);
   return response.data;
 };
+
+export const fetchQuizById = async (quizId: string) => {
+  const res = await axios.get(`${QUIZZES_API}/${quizId}`);
+  return res.data;
+};
+

@@ -1,11 +1,13 @@
 import { Col, Container, Form, Row, Nav, Tab } from "react-bootstrap";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { addQuiz, updateQuiz } from "./quizReducer";
 import { createQuizForCourse, updateQuizOnServer } from "./quizClient";
 import QuestionEditor from "./QuestionsEditor";
+import { fetchQuizById } from "./quizClient";
+
 
 export default function QuizEditor() {
   const { cid, qid } = useParams();
@@ -41,6 +43,24 @@ export default function QuizEditor() {
     }
   );
 
+  useEffect(() => {
+    const loadQuizIfNeeded = async () => {
+      if (!existingQuiz && qid) {
+        try {
+          const loaded = await fetchQuizById(qid);
+          if (loaded) {
+            setQuiz(loaded);
+            isEditingRef.current = true;
+            dispatch(addQuiz(loaded));
+          }
+        } catch (err) {
+          console.error("Error loading quiz:", err);
+        }
+      }
+    };
+    loadQuizIfNeeded();
+  }, [qid, existingQuiz, dispatch]);
+
   const handleSave = async (publish = false) => {
     const payload = { ...quiz, isPublished: publish };
 
@@ -54,6 +74,9 @@ export default function QuizEditor() {
 
     navigate(publish ? `/Kambaz/Courses/${cid}/Quizzes` : `/Kambaz/Courses/${cid}/Quizzes/${quiz._id}`);
   };
+
+
+  
 
   const totalPoints = quiz.questions?.reduce((sum: number, q: any) => sum + (q.points || 0), 0) || 0;
 
@@ -82,7 +105,7 @@ export default function QuizEditor() {
                 <Form.Label>Title</Form.Label>
                 <Form.Control
                   type="text"
-                  value={quiz.title}
+                  value={quiz?.title ?? ""}
                   onChange={(e) => setQuiz({ ...quiz, title: e.target.value })}
                 />
               </Form.Group>
@@ -92,7 +115,7 @@ export default function QuizEditor() {
                 <Form.Control
                   as="textarea"
                   rows={4}
-                  value={quiz.description}
+                  value={quiz.description || ""}
                   onChange={(e) => setQuiz({ ...quiz, description: e.target.value })}
                 />
               </Form.Group>
@@ -102,7 +125,7 @@ export default function QuizEditor() {
                   <Form.Group>
                     <Form.Label>Quiz Type</Form.Label>
                     <Form.Select
-                      value={quiz.quizType}
+                      value={quiz.quizType || ""}
                       onChange={(e) => setQuiz({ ...quiz, quizType: e.target.value })}
                     >
                       <option>Graded Quiz</option>
@@ -117,7 +140,7 @@ export default function QuizEditor() {
                   <Form.Group>
                     <Form.Label>Assignment Group</Form.Label>
                     <Form.Select
-                      value={quiz.assignmentGroup}
+                      value={quiz.assignmentGroup|| ""}
                       onChange={(e) => setQuiz({ ...quiz, assignmentGroup: e.target.value })}
                     >
                       <option>Quizzes</option>
@@ -135,7 +158,7 @@ export default function QuizEditor() {
                     <Form.Label>Time Limit (minutes)</Form.Label>
                     <Form.Control
                       type="number"
-                      value={quiz.timeLimit}
+                      value={quiz.timeLimit || ""}
                       onChange={(e) => setQuiz({ ...quiz, timeLimit: parseInt(e.target.value) })}
                     />
                   </Form.Group>
@@ -146,7 +169,7 @@ export default function QuizEditor() {
                     <Form.Label>Access Code</Form.Label>
                     <Form.Control
                       type="text"
-                      value={quiz.accessCode}
+                      value={quiz.accessCode || ""}
                       onChange={(e) => setQuiz({ ...quiz, accessCode: e.target.value })}
                     />
                   </Form.Group>
@@ -208,7 +231,7 @@ export default function QuizEditor() {
                   <Form.Label>How Many Attempts</Form.Label>
                   <Form.Control
                     type="number"
-                    value={quiz.allowedAttempts}
+                    value={quiz.allowedAttempts || ""}
                     onChange={(e) => setQuiz({ ...quiz, allowedAttempts: parseInt(e.target.value) })}
                   />
                 </Form.Group>
@@ -216,7 +239,7 @@ export default function QuizEditor() {
 
               <Form.Group className="mt-3">
                 <Form.Label>Total Points (auto-calculated)</Form.Label>
-                <Form.Control type="number" value={totalPoints} readOnly />
+                <Form.Control type="number" value={totalPoints || ""} readOnly />
               </Form.Group>
 
               <Row className="mt-3">
@@ -225,7 +248,7 @@ export default function QuizEditor() {
                     <Form.Label>Available Date</Form.Label>
                     <Form.Control
                       type="datetime-local"
-                      value={quiz.availableDate}
+                      value={quiz.availableDate|| ""}
                       onChange={(e) => setQuiz({ ...quiz, availableDate: e.target.value })}
                     />
                   </Form.Group>
@@ -235,7 +258,7 @@ export default function QuizEditor() {
                     <Form.Label>Due Date</Form.Label>
                     <Form.Control
                       type="datetime-local"
-                      value={quiz.dueDate}
+                      value={quiz.dueDate|| ""}
                       onChange={(e) => setQuiz({ ...quiz, dueDate: e.target.value })}
                     />
                   </Form.Group>
@@ -245,7 +268,7 @@ export default function QuizEditor() {
                     <Form.Label>Until Date</Form.Label>
                     <Form.Control
                       type="datetime-local"
-                      value={quiz.untilDate}
+                      value={quiz.untilDate || ""}
                       onChange={(e) => setQuiz({ ...quiz, untilDate: e.target.value })}
                     />
                   </Form.Group>
