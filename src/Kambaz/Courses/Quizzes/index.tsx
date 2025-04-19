@@ -141,9 +141,10 @@ export default function QuizList() {
                       ⋮
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
-                      <Dropdown.Item onClick={() => navigate(`/Kambaz/Courses/${cid}/Quizzes/${quiz._id}`)}>
+                      <Dropdown.Item onClick={() => navigate(`/Kambaz/Courses/${cid}/Quizzes/${quiz._id}/edit`)}>
                         Edit
                       </Dropdown.Item>
+
                       <Dropdown.Item onClick={() => handleDelete(quiz._id)}>
                         Delete
                       </Dropdown.Item>

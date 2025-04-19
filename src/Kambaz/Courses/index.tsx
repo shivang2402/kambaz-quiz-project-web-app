@@ -8,7 +8,7 @@ import Assignments from "./Assignments";
 import AssignmentEditor from "./Assignments/Editor";
 import { FaAlignJustify } from "react-icons/fa";
 import PeopleTable from "./People/index";
-
+import QuizDetails from "./Quizzes/Details";
 import QuizList from "./Quizzes"; // index.tsx
 import QuizEditor from "./Quizzes/Editor"; // Editor.tsx
 
@@ -51,7 +51,9 @@ export default function Courses() {
             <Route path="Assignments/:aid" element={<AssignmentEditor />} />
             {/* <Route path="Quizzes" element={<h2>Quizzes</h2>} /> */}
             <Route path="Quizzes" element={<QuizList />} />
-            <Route path="Quizzes/:qid" element={<QuizEditor />} />
+            <Route path="Quizzes/:qid" element={<QuizDetails />} />
+            <Route path="Quizzes/:qid/edit" element={<QuizEditor />} />
+
 
             <Route path="People" element={<PeopleTable />} />
           </Routes>
