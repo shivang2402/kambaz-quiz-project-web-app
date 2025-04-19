@@ -2,9 +2,10 @@ import axios from "axios";
 import { Quiz } from "./quizReducer";
 
 export const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER;
-const QUIZZES_API = `${REMOTE_SERVER}/quizzes`;
+const QUIZZES_API = `${REMOTE_SERVER}/api/quizzes`;
 
-export const createQuizForCourse = async (courseId: string, quiz: Quiz) => {
+
+export const createQuizForCourse = async (courseId: string, quiz: Partial<Quiz>) => {
   const response = await axios.post(`${QUIZZES_API}/course/${courseId}`, quiz);
   return response.data;
 };
