@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { addQuiz, updateQuiz } from "./quizReducer";
 import { createQuizForCourse, updateQuizOnServer } from "./quizClient";
-
+import QuestionEditor from "./QuestionsEditor";
 
 export default function QuizEditor() {
   const { cid, qid } = useParams();
@@ -55,6 +55,8 @@ export default function QuizEditor() {
     navigate(publish ? `/Kambaz/Courses/${cid}/Quizzes` : `/Kambaz/Courses/${cid}/Quizzes/${quiz._id}`);
   };
 
+  const totalPoints = quiz.questions?.reduce((sum: number, q: any) => sum + (q.points || 0), 0) || 0;
+
   return (
     <Container>
       <Tab.Container defaultActiveKey="details">
@@ -70,6 +72,12 @@ export default function QuizEditor() {
         <Tab.Content className="mt-4">
           <Tab.Pane eventKey="details">
             <Form>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h3>
+                  {quiz.title || "Untitled Quiz"} {quiz.isPublished ? "✅" : "🚫"}
+                </h3>
+              </div>
+
               <Form.Group>
                 <Form.Label>Title</Form.Label>
                 <Form.Control
@@ -206,12 +214,17 @@ export default function QuizEditor() {
                 </Form.Group>
               )}
 
+              <Form.Group className="mt-3">
+                <Form.Label>Total Points (auto-calculated)</Form.Label>
+                <Form.Control type="number" value={totalPoints} readOnly />
+              </Form.Group>
+
               <Row className="mt-3">
                 <Col md={4}>
                   <Form.Group>
                     <Form.Label>Available Date</Form.Label>
                     <Form.Control
-                      type="date"
+                      type="datetime-local"
                       value={quiz.availableDate}
                       onChange={(e) => setQuiz({ ...quiz, availableDate: e.target.value })}
                     />
@@ -221,7 +234,7 @@ export default function QuizEditor() {
                   <Form.Group>
                     <Form.Label>Due Date</Form.Label>
                     <Form.Control
-                      type="date"
+                      type="datetime-local"
                       value={quiz.dueDate}
                       onChange={(e) => setQuiz({ ...quiz, dueDate: e.target.value })}
                     />
@@ -231,7 +244,7 @@ export default function QuizEditor() {
                   <Form.Group>
                     <Form.Label>Until Date</Form.Label>
                     <Form.Control
-                      type="date"
+                      type="datetime-local"
                       value={quiz.untilDate}
                       onChange={(e) => setQuiz({ ...quiz, untilDate: e.target.value })}
                     />
@@ -255,7 +268,7 @@ export default function QuizEditor() {
           </Tab.Pane>
 
           <Tab.Pane eventKey="questions">
-            <div className="mt-3">🛠 Questions tab coming soon…</div>
+            <QuestionEditor quiz={quiz} setQuiz={setQuiz} />
           </Tab.Pane>
         </Tab.Content>
       </Tab.Container>

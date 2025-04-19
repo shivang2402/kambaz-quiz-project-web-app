@@ -11,6 +11,7 @@ import PeopleTable from "./People/index";
 import QuizDetails from "./Quizzes/Details";
 import QuizList from "./Quizzes"; // index.tsx
 import QuizEditor from "./Quizzes/Editor"; // Editor.tsx
+import QuizPreview from "./Quizzes/Preview";
 
 
 export default function Courses() {
@@ -53,6 +54,8 @@ export default function Courses() {
             <Route path="Quizzes" element={<QuizList />} />
             <Route path="Quizzes/:qid" element={<QuizDetails />} />
             <Route path="Quizzes/:qid/edit" element={<QuizEditor />} />
+            <Route path="Quizzes/:qid/preview" element={<QuizPreview />} />
+
 
 
             <Route path="People" element={<PeopleTable />} />
