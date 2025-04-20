@@ -26,7 +26,7 @@ export default function QuizTake() {
     quiz.questions.forEach((q: any) => {
       const a = answers[q._id];
 
-      if (q.type === "mcq") {
+      if (q.type === "Multiple Choice") {
         const correctIndex = q.choices.findIndex((c: any) => c.isCorrect);
         if (a === correctIndex) score += q.points;
       } else if (q.type === "tf" && a === q.answer) {
@@ -44,7 +44,9 @@ export default function QuizTake() {
   };
 
   const renderTypeLabel = (type: string) => {
-    if (type === "mcq") return <Badge bg="info">Multiple Choice</Badge>;
+    console.log("Type of Quiz", type);
+    
+    if (type === "Multiple Choice") return <Badge bg="info">Multiple Choice</Badge>;
     if (type === "tf") return <Badge bg="warning">True / False</Badge>;
     if (type === "fib") return <Badge bg="secondary">Fill in the Blank</Badge>;
     return null;
@@ -70,7 +72,7 @@ export default function QuizTake() {
 
               <div className="mb-3">{q.question}</div>
 
-              {q.type === "mcq" && (
+              {q.type === "Multiple Choice" && (
                 <>
                   {q.choices?.map((choice: any, cIndex: number) => (
                     <Form.Check
@@ -122,7 +124,7 @@ export default function QuizTake() {
                   {(() => {
                     let correct = false;
 
-                    if (q.type === "mcq") {
+                    if (q.type === "Multiple Choice") {
                       const correctIndex = q.choices.findIndex((c: any) => c.isCorrect);
                       correct = answers[q._id] === correctIndex;
                     } else if (q.type === "tf") {
