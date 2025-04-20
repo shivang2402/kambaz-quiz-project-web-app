@@ -25,7 +25,7 @@ export default function QuizPreview() {
     quiz.questions.forEach((q: any) => {
       const a = answers[q._id];
 
-      if (q.type === "mcq") {
+      if (q.type === "Multiple Choice") {
         const correctIndex = q.choices.findIndex((c: any) => c.isCorrect);
         if (a === correctIndex) score += q.points;
       } else if (q.type === "tf" && a === q.answer) {
@@ -53,7 +53,7 @@ export default function QuizPreview() {
             </strong>
             <div className="mt-2 mb-2">{q.question}</div>
 
-            {q.type === "mcq" && (
+            {q.type === "Multiple Choice" && (
               <>
                 {q.choices.map((choice: any, cIndex: number) => (
                   <Form.Check
@@ -104,7 +104,7 @@ export default function QuizPreview() {
                 {(() => {
                   let correct = false;
 
-                  if (q.type === "mcq") {
+                  if (q.type === "Multiple Choice") {
                     const correctIndex = q.choices.findIndex((c: any) => c.isCorrect);
                     correct = answers[q._id] === correctIndex;
                   } else if (q.type === "tf") {
