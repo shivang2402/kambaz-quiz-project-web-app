@@ -12,6 +12,7 @@ import QuizDetails from "./Quizzes/Details";
 import QuizList from "./Quizzes"; // index.tsx
 import QuizEditor from "./Quizzes/Editor"; // Editor.tsx
 import QuizPreview from "./Quizzes/Preview";
+import QuizTake from "./Quizzes/Take";
 
 
 export default function Courses() {
@@ -55,6 +56,8 @@ export default function Courses() {
             <Route path="Quizzes/:qid" element={<QuizDetails />} />
             <Route path="Quizzes/:qid/edit" element={<QuizEditor />} />
             <Route path="Quizzes/:qid/preview" element={<QuizPreview />} />
+            <Route path="Quizzes/:qid/take" element={<QuizTake />} />
+
 
 
 

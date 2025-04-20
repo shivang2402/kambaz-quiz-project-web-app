@@ -14,19 +14,23 @@ export default function QuizDetails() {
   const currentUser = useSelector((state: any) => state.accountReducer.currentUser) || {};
   const isFaculty = currentUser?.role === "FACULTY";
   const isStudent = currentUser?.role === "STUDENT";
+  console.log("hello",quiz.title);
+  console.log("hello", quizzes);
+  
 
-  const isAvailable = new Date() >= new Date(quiz.availableDate);
+
+
+
+  const isAvailable = new Date() >= new Date(quiz.dates?.available || 0);
 
   return (
     <Container className="mt-4">
-      {/* Header with role-based buttons */}
       <div className="d-flex justify-content-between align-items-start mb-4">
         <div>
           <h2 className="mb-1">{quiz.title || "Untitled Quiz"}</h2>
           <div className="text-muted">{quiz.description || "No description provided."}</div>
         </div>
 
-        {/* Faculty buttons */}
         {isFaculty && (
           <div className="d-flex gap-2">
             <Button
@@ -44,20 +48,18 @@ export default function QuizDetails() {
           </div>
         )}
 
-        {/* Student start button */}
         {isStudent && (
           <Button
             variant="success"
             disabled={!isAvailable}
             onClick={() => navigate(`/Kambaz/Courses/${cid}/Quizzes/${qid}/take`)}
-            title={!isAvailable ? `Not available until ${quiz.availableDate}` : ""}
+            title={!isAvailable ? `Not available until ${quiz.dates?.available}` : ""}
           >
             Start Quiz
           </Button>
         )}
       </div>
 
-      {/* Metadata Table */}
       <Table bordered className="bg-white">
         <tbody>
           <tr>
@@ -71,57 +73,58 @@ export default function QuizDetails() {
             <td><strong>Points</strong></td>
             <td>{quiz.points ?? "N/A"}</td>
             <td><strong>Time Limit</strong></td>
-            <td>{quiz.timeLimit ? `${quiz.timeLimit} minutes` : "No limit"}</td>
+            <td>{quiz.settings?.timeLimit ? `${quiz.settings.timeLimit} minutes` : "No limit"}</td>
           </tr>
 
           <tr>
             <td><strong>Multiple Attempts</strong></td>
-            <td>{quiz.multipleAttempts ? "Yes" : "No"}</td>
+            
+            <td>{quiz.settings?.multipleAttempts?.enabled ? "Yes" : "No"}</td>
             <td><strong>How Many Attempts</strong></td>
-            <td>{quiz.multipleAttempts ? quiz.allowedAttempts ?? "Unlimited" : 1}</td>
+            <td>{quiz.settings?.multipleAttempts?.attemptsAllowed ?? 1}</td>
           </tr>
 
           <tr>
             <td><strong>Access Code</strong></td>
-            <td>{quiz.accessCode || "None"}</td>
+            <td>{quiz.settings?.accessCode || "None"}</td>
             <td></td>
             <td></td>
           </tr>
 
           <tr>
             <td><strong>Available From</strong></td>
-            <td>{quiz.availableDate || "N/A"}</td>
+            <td>{quiz.dates?.available ? new Date(quiz.dates.available).toLocaleDateString() : "N/A"}</td>
             <td><strong>Available Until</strong></td>
-            <td>{quiz.untilDate || "N/A"}</td>
+            <td>{quiz.dates?.until ? new Date(quiz.dates.until).toLocaleDateString() : "N/A"}</td>
           </tr>
+
 
           <tr>
             <td><strong>Due Date</strong></td>
-            <td>{quiz.dueDate || "N/A"}</td>
+            <td>{quiz.dates?.due ? new Date(quiz.dates.due).toLocaleDateString() : "N/A"}</td>
             <td></td>
             <td></td>
           </tr>
 
-          {/* Extra fields for faculty only */}
           {isFaculty && (
             <>
               <tr>
                 <td><strong>Shuffle Answers</strong></td>
-                <td>{quiz.shuffleAnswers ? "Yes" : "No"}</td>
+                <td>{quiz.settings?.shuffleAnswers ? "Yes" : "No"}</td>
                 <td><strong>Show Correct Answers</strong></td>
-                <td>{quiz.showCorrectAnswers ? "Yes" : "No"}</td>
+                <td>{quiz.settings?.showCorrectAnswers?.enabled ? "Yes" : "No"}</td>
               </tr>
 
               <tr>
                 <td><strong>One Question at a Time</strong></td>
-                <td>{quiz.oneQuestionAtATime ? "Yes" : "No"}</td>
+                <td>{quiz.settings?.oneQuestionAtATime ? "Yes" : "No"}</td>
                 <td><strong>Webcam Required</strong></td>
-                <td>{quiz.webcamRequired ? "Yes" : "No"}</td>
+                <td>{quiz.settings?.webcamRequired ? "Yes" : "No"}</td>
               </tr>
 
               <tr>
                 <td><strong>Lock After Answering</strong></td>
-                <td>{quiz.lockAfterAnswering ? "Yes" : "No"}</td>
+                <td>{quiz.settings?.lockQuestionsAfterAnswering ? "Yes" : "No"}</td>
                 <td></td>
                 <td></td>
               </tr>

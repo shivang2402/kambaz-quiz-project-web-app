@@ -1,27 +1,48 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+// Define the structure of a question
+export interface QuizQuestion {
+  _id: string;
+  type: "mcq" | "tf" | "fib";
+  title: string;
+  points: number;
+  question: string;
+  choices?: { answer: string; isCorrect: boolean }[]; // For MCQ
+  answer?: boolean; // For True/False
+  possibleAnswers?: string[]; // For Fill in the Blank
+}
+
 export interface Quiz {
   _id: string;
   course: string;
   title: string;
   description: string;
-  quizType: string;
-  assignmentGroup: string;
-  shuffleAnswers: boolean;
-  timeLimit: number;
-  multipleAttempts: boolean;
-  allowedAttempts: number;
-  showCorrectAnswers: boolean;
-  accessCode: string;
-  oneQuestionAtATime: boolean;
-  webcamRequired: boolean;
-  lockAfterAnswering: boolean;
-  dueDate: string;
-  availableDate: string;
-  untilDate: string;
-  questions: any[];
+  quizType: "Graded Quiz" | "Practice Quiz" | "Graded Survey" | "Ungraded Survey";
+  assignmentGroup: "Quizzes" | "Exams" | "Assignments" | "Project";
+  settings: {
+    shuffleAnswers: boolean;
+    timeLimit: number;
+    multipleAttempts: {
+      enabled: boolean;
+      attemptsAllowed: number;
+    };
+    showCorrectAnswers: {
+      enabled: boolean;
+      timing?: string | null;
+    };
+    accessCode: string;
+    oneQuestionAtATime: boolean;
+    webcamRequired: boolean;
+    lockQuestionsAfterAnswering: boolean;
+  };
+  dates: {
+    due: string;
+    available: string;
+    until: string;
+  };
+  questions: QuizQuestion[];
   isPublished: boolean;
-  points: number; 
+  points: number;
 }
 
 interface QuizState {

@@ -8,40 +8,36 @@ export default function QuizPreview() {
   const navigate = useNavigate();
 
   const { quizzes } = useSelector((state: any) => state.quizzesReducer);
-  const { account } = useSelector((state: any) => state.accountReducer);
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
   const quiz = quizzes.find((q: any) => q._id === qid);
 
   const [answers, setAnswers] = useState<any>({});
   const [submitted, setSubmitted] = useState(false);
 
   if (!quiz) return <div className="m-4 text-muted">Quiz not found.</div>;
+  if (currentUser?.role === "STUDENT") return <div className="m-4 text-danger">Access denied.</div>;
 
-  const { currentUser } = useSelector((state: any) => state.accountReducer);
-  const isFaculty = currentUser?.role === "FACULTY";
-
-
-  const isStudent = currentUser?.role === "STUDENT";
-  if (isStudent==true) return <div className="m-4 text-danger">Access denied.</div>;
-
-  const handleSubmit = () => {
-    setSubmitted(true);
-  };
+  const handleSubmit = () => setSubmitted(true);
 
   const getScore = () => {
     let score = 0;
-    quiz.questions.forEach((q: any, index: number) => {
+
+    quiz.questions.forEach((q: any) => {
       const a = answers[q._id];
-      if (q.type === "Multiple Choice" && a === q.correctAnswer) {
-        score += q.points;
-      } else if (q.type === "True/False" && a === q.correctAnswer) {
+
+      if (q.type === "mcq") {
+        const correctIndex = q.choices.findIndex((c: any) => c.isCorrect);
+        if (a === correctIndex) score += q.points;
+      } else if (q.type === "tf" && a === q.answer) {
         score += q.points;
       } else if (
-        q.type === "Fill in the Blank" &&
-        q.acceptedAnswers?.some((ans: string) => ans.toLowerCase().trim() === a?.toLowerCase().trim())
+        q.type === "fib" &&
+        q.possibleAnswers?.some((ans: string) => ans.toLowerCase().trim() === a?.toLowerCase().trim())
       ) {
         score += q.points;
       }
     });
+
     return score;
   };
 
@@ -57,34 +53,30 @@ export default function QuizPreview() {
             </strong>
             <div className="mt-2 mb-2">{q.question}</div>
 
-            {q.type === "Multiple Choice" && (
+            {q.type === "mcq" && (
               <>
-                {q.choices.map((choice: string, cIndex: number) => (
+                {q.choices.map((choice: any, cIndex: number) => (
                   <Form.Check
                     key={cIndex}
                     type="radio"
                     name={`q-${q._id}`}
-                    label={choice}
+                    label={choice.answer}
                     checked={answers[q._id] === cIndex}
-                    onChange={() =>
-                      setAnswers({ ...answers, [q._id]: cIndex })
-                    }
+                    onChange={() => setAnswers({ ...answers, [q._id]: cIndex })}
                     disabled={submitted}
                   />
                 ))}
               </>
             )}
 
-            {q.type === "True/False" && (
+            {q.type === "tf" && (
               <>
                 <Form.Check
                   type="radio"
                   name={`q-${q._id}`}
                   label="True"
                   checked={answers[q._id] === true}
-                  onChange={() =>
-                    setAnswers({ ...answers, [q._id]: true })
-                  }
+                  onChange={() => setAnswers({ ...answers, [q._id]: true })}
                   disabled={submitted}
                 />
                 <Form.Check
@@ -92,21 +84,17 @@ export default function QuizPreview() {
                   name={`q-${q._id}`}
                   label="False"
                   checked={answers[q._id] === false}
-                  onChange={() =>
-                    setAnswers({ ...answers, [q._id]: false })
-                  }
+                  onChange={() => setAnswers({ ...answers, [q._id]: false })}
                   disabled={submitted}
                 />
               </>
             )}
 
-            {q.type === "Fill in the Blank" && (
+            {q.type === "fib" && (
               <Form.Control
                 type="text"
                 value={answers[q._id] || ""}
-                onChange={(e) =>
-                  setAnswers({ ...answers, [q._id]: e.target.value })
-                }
+                onChange={(e) => setAnswers({ ...answers, [q._id]: e.target.value })}
                 disabled={submitted}
               />
             )}
@@ -114,16 +102,19 @@ export default function QuizPreview() {
             {submitted && (
               <div className="mt-2 text-muted">
                 {(() => {
-                  const correct =
-                    q.type === "Multiple Choice"
-                      ? answers[q._id] === q.correctAnswer
-                      : q.type === "True/False"
-                      ? answers[q._id] === q.correctAnswer
-                      : q.acceptedAnswers?.some(
-                          (ans: string) =>
-                            ans.toLowerCase().trim() ===
-                            answers[q._id]?.toLowerCase().trim()
-                        );
+                  let correct = false;
+
+                  if (q.type === "mcq") {
+                    const correctIndex = q.choices.findIndex((c: any) => c.isCorrect);
+                    correct = answers[q._id] === correctIndex;
+                  } else if (q.type === "tf") {
+                    correct = answers[q._id] === q.answer;
+                  } else if (q.type === "fib") {
+                    correct = q.possibleAnswers?.some(
+                      (ans: string) =>
+                        ans.toLowerCase().trim() === answers[q._id]?.toLowerCase().trim()
+                    );
+                  }
 
                   return correct ? (
                     <span className="text-success">✅ Correct</span>

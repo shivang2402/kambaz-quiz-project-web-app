@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
+import { v4 as uuidv4 } from "uuid";
 
 export default function TrueFalseEditor({ question, onSave, onCancel }: any) {
   const [localQ, setLocalQ] = useState({
-    ...question,
-    correctAnswer: question.correctAnswer ?? true,
+    _id: question._id || uuidv4(),
+    type: "tf",
+    title: question.title || "",
+    points: question.points || 1,
+    question: question.question || "",
+    answer: typeof question.answer === "boolean" ? question.answer : true, // ✅ use 'answer' not 'correctAnswer'
   });
 
   return (
@@ -23,7 +28,9 @@ export default function TrueFalseEditor({ question, onSave, onCancel }: any) {
         <Form.Control
           type="number"
           value={localQ.points}
-          onChange={(e) => setLocalQ({ ...localQ, points: parseInt(e.target.value) })}
+          onChange={(e) =>
+            setLocalQ({ ...localQ, points: parseInt(e.target.value) || 0 })
+          }
         />
       </Form.Group>
 
@@ -43,15 +50,15 @@ export default function TrueFalseEditor({ question, onSave, onCancel }: any) {
           inline
           type="radio"
           label="True"
-          checked={localQ.correctAnswer === true}
-          onChange={() => setLocalQ({ ...localQ, correctAnswer: true })}
+          checked={localQ.answer === true}
+          onChange={() => setLocalQ({ ...localQ, answer: true })}
         />
         <Form.Check
           inline
           type="radio"
           label="False"
-          checked={localQ.correctAnswer === false}
-          onChange={() => setLocalQ({ ...localQ, correctAnswer: false })}
+          checked={localQ.answer === false}
+          onChange={() => setLocalQ({ ...localQ, answer: false })}
         />
       </Form.Group>
 

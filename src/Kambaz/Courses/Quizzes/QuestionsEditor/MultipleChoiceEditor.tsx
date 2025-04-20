@@ -2,7 +2,16 @@ import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
 
 export default function MultipleChoiceEditor({ question, onSave, onCancel }: any) {
-  const [localQ, setLocalQ] = useState({ ...question });
+  const [localQ, setLocalQ] = useState(() => ({
+    ...question,
+    choices: (question.choices || []).map((c: any) =>
+      typeof c === "string" ? c : c?.answer || ""
+    ),
+    correctAnswer:
+      Array.isArray(question.choices)
+        ? question.choices.findIndex((c: any) => c?.isCorrect)
+        : 0,
+  }));
 
   const updateChoice = (index: number, value: string) => {
     const updatedChoices = [...localQ.choices];
@@ -17,7 +26,6 @@ export default function MultipleChoiceEditor({ question, onSave, onCancel }: any
   const removeChoice = (index: number) => {
     const updatedChoices = [...localQ.choices];
     updatedChoices.splice(index, 1);
-    // Adjust correctAnswer index if needed
     const newCorrect =
       localQ.correctAnswer >= index
         ? Math.max(0, localQ.correctAnswer - 1)
@@ -41,7 +49,9 @@ export default function MultipleChoiceEditor({ question, onSave, onCancel }: any
         <Form.Control
           type="number"
           value={localQ.points}
-          onChange={(e) => setLocalQ({ ...localQ, points: parseInt(e.target.value) })}
+          onChange={(e) =>
+            setLocalQ({ ...localQ, points: parseInt(e.target.value) || 0 })
+          }
         />
       </Form.Group>
 
@@ -83,7 +93,12 @@ export default function MultipleChoiceEditor({ question, onSave, onCancel }: any
         </div>
       ))}
 
-      <Button variant="outline-secondary" size="sm" onClick={addChoice} className="mb-3">
+      <Button
+        variant="outline-secondary"
+        size="sm"
+        onClick={addChoice}
+        className="mb-3"
+      >
         + Add Choice
       </Button>
 
@@ -93,11 +108,24 @@ export default function MultipleChoiceEditor({ question, onSave, onCancel }: any
         </Button>
         <Button
           variant="success"
-          onClick={() => onSave(localQ)}
+          onClick={() => {
+            const formattedChoices = localQ.choices.map(
+              (choice: string, index: number) => ({
+                answer: choice,
+                isCorrect: index === localQ.correctAnswer,
+              })
+            );
+
+            onSave({
+              ...localQ,
+              type: "mcq",
+              choices: formattedChoices,
+            });
+          }}
           disabled={
-            !localQ.title.trim() ||
-            !localQ.question.trim() ||
-            localQ.choices.some((c: string) => !c.trim())
+            !localQ.title?.trim() ||
+            !localQ.question?.trim() ||
+            localQ.choices.some((c: string) => typeof c !== "string" || !c.trim())
           }
         >
           Save Question
