@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useState } from "react";
+import { submitQuizAttempt } from "./quizClient";
 import { Button, Container, Form, Badge } from "react-bootstrap";
 
 export default function QuizTake() {
@@ -17,8 +18,30 @@ export default function QuizTake() {
   if (currentUser?.role !== "STUDENT")
     return <div className="m-4 text-danger">Access denied: For students only.</div>;
 
-  const handleSubmit = () => {
-    setSubmitted(true);
+  const handleSubmit = async () => {
+    const score = getScore();
+    const submissionPayload = {
+      user: currentUser._id,
+      quiz: qid,
+      course: quiz.course,
+      responses: Object.entries(answers).map(([questionId, answer]) => ({
+        questionId,
+        type: quiz.questions.find((q: any) => q._id === questionId)?.type,
+        answer,
+      })),
+      score,
+      timeBegin: new Date().toISOString(),
+      submittedAt: new Date().toISOString(),
+    };
+  
+    try {
+      const result = await submitQuizAttempt(submissionPayload);
+      console.log("Saved quiz submission:", result);
+      setSubmitted(true);
+    } catch (err: any) {
+      console.error("Submission failed:", err.response?.data || err.message);
+      alert(err.response?.data?.message || "Submission failed");
+    }
   };
 
   const getScore = () => {

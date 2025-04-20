@@ -30,3 +30,7 @@ export const fetchQuizById = async (quizId: string) => {
   return res.data;
 };
 
+export const submitQuizAttempt = async (submission: any) => {
+  const response = await axios.post(`${REMOTE_SERVER}/api/quizzes/submissions`, submission);
+  return response.data;
+};
