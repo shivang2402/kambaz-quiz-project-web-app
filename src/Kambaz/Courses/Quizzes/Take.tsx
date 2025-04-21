@@ -1,11 +1,13 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate  } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useState } from "react";
-import { submitQuizAttempt } from "./quizClient";
+import { useEffect, useState } from "react";
+import { submitQuizAttempt, fetchQuizSubmission } from "./quizClient";
 import { Button, Container, Form, Badge } from "react-bootstrap";
+
 
 export default function QuizTake() {
   const { qid } = useParams();
+
 
   const { quizzes } = useSelector((state: any) => state.quizzesReducer);
   const { currentUser } = useSelector((state: any) => state.accountReducer);
@@ -17,6 +19,28 @@ export default function QuizTake() {
   if (!quiz) return <div className="m-4 text-muted">Quiz not found.</div>;
   if (currentUser?.role !== "STUDENT")
     return <div className="m-4 text-danger">Access denied: For students only.</div>;
+
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkIfAlreadySubmitted = async () => {
+      try {
+        const attempts = await fetchQuizSubmission(qid!, currentUser._id);
+        if (attempts?.length > 0) {
+          navigate(`/Kambaz/Courses/${quiz.course}/Quizzes/${qid}/preview`, { replace: true });
+        }
+      } catch (err) {
+        console.error("Error checking submission:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkIfAlreadySubmitted();
+  }, [qid, currentUser]);
+
+  if (loading) return <div className="m-4">Checking if quiz already attempted...</div>;
 
   const handleSubmit = async () => {
     const score = getScore();
@@ -33,7 +57,7 @@ export default function QuizTake() {
       timeBegin: new Date().toISOString(),
       submittedAt: new Date().toISOString(),
     };
-  
+
     try {
       const result = await submitQuizAttempt(submissionPayload);
       console.log("Saved quiz submission:", result);
@@ -68,7 +92,7 @@ export default function QuizTake() {
 
   const renderTypeLabel = (type: string) => {
     console.log("Type of Quiz", type);
-    
+
     if (type === "Multiple Choice") return <Badge bg="info">Multiple Choice</Badge>;
     if (type === "tf") return <Badge bg="warning">True / False</Badge>;
     if (type === "fib") return <Badge bg="secondary">Fill in the Blank</Badge>;

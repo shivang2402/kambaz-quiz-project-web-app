@@ -5,6 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { setQuizzes } from "./quizReducer";
+import { fetchQuizSubmission } from "./quizClient";
 import {
   Container,
   Button,
@@ -18,6 +19,7 @@ import { fetchQuizzesForCourse, createQuizForCourse, deleteQuizOnServer } from "
 export default function QuizList() {
   const { cid } = useParams();
   const dispatch = useDispatch();
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
   const navigate = useNavigate();
   const { quizzes } = useSelector((state: any) => state.quizzesReducer);
   const courseQuizzes = quizzes.filter((q: any) => q.course === cid);
@@ -122,7 +124,24 @@ export default function QuizList() {
                     <div>
                       <div
                         role="button"
-                        onClick={() => navigate(`/Kambaz/Courses/${cid}/Quizzes/${quiz._id}`)}
+                        onClick={async () => {
+                          if (currentUser?.role === "STUDENT") {
+                            try {
+                              const attempts = await fetchQuizSubmission(quiz._id, currentUser._id);
+                              if (attempts?.length > 0) {
+                                navigate(`/Kambaz/Courses/${cid}/Quizzes/${quiz._id}`);
+                              } else {
+                                navigate(`/Kambaz/Courses/${cid}/Quizzes/${quiz._id}/take`);
+                              }
+                            } catch (e) {
+                              console.error("Failed to check submission:", e);
+                              navigate(`/Kambaz/Courses/${cid}/Quizzes/${quiz._id}/take`);
+                            }
+                          } else {
+                            navigate(`/Kambaz/Courses/${cid}/Quizzes/${quiz._id}`);
+                          }
+                        }}
+                        
                         className="fw-bold text-dark text-decoration-none"
                       >
                         {quiz.title}
