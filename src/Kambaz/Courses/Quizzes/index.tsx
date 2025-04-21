@@ -22,7 +22,11 @@ export default function QuizList() {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const navigate = useNavigate();
   const { quizzes } = useSelector((state: any) => state.quizzesReducer);
-  const courseQuizzes = quizzes.filter((q: any) => q.course === cid);
+  const isStudent = currentUser?.role === "STUDENT";
+  const courseQuizzes = quizzes.filter((q: any) =>
+    q.course === cid && (!isStudent || q.isPublished)
+  );
+  const canCreateQuiz = ["FACULTY", "TA", "ADMIN"].includes(currentUser?.role);
 
   useEffect(() => {
     const loadQuizzes = async () => {
@@ -35,7 +39,7 @@ export default function QuizList() {
 
   const handleAddQuiz = async () => {
     if (!cid) return;
-  
+
     const newQuiz = {
       title: "Untitled Quiz",
       description: "",
@@ -59,7 +63,7 @@ export default function QuizList() {
       isPublished: false,
       points: 0,
     };
-  
+
     try {
       const created = await createQuizForCourse(cid, newQuiz);
       navigate(`/Kambaz/Courses/${cid}/Quizzes/${created._id}/edit`);
@@ -67,7 +71,7 @@ export default function QuizList() {
       console.error("Failed to create quiz:", e);
     }
   };
-  
+
 
   const getAvailability = (quiz: any) => {
     const now = new Date();
@@ -94,13 +98,13 @@ export default function QuizList() {
       console.error("Failed to delete quiz:", err);
     }
   };
-  
+
 
   return (
     <Container className="mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="fw-bold">Assignment Quizzes</h5>
-        <Button variant="danger" onClick={handleAddQuiz}>+ Quiz</Button>
+        {canCreateQuiz && (<Button variant="danger" onClick={handleAddQuiz}>+ Quiz</Button>)}
       </div>
 
       {courseQuizzes.length === 0 ? (
@@ -141,7 +145,7 @@ export default function QuizList() {
                             navigate(`/Kambaz/Courses/${cid}/Quizzes/${quiz._id}`);
                           }
                         }}
-                        
+
                         className="fw-bold text-dark text-decoration-none"
                       >
                         {quiz.title}
@@ -154,7 +158,7 @@ export default function QuizList() {
                   </div>
                 </Col>
 
-                <Col md={2} className="d-flex justify-content-end">
+                {!isStudent && (<Col md={2} className="d-flex justify-content-end">
                   <Dropdown>
                     <Dropdown.Toggle variant="light" size="sm" className="border-0">
                       ⋮
@@ -172,7 +176,7 @@ export default function QuizList() {
                       </Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>
-                </Col>
+                </Col>)}
               </Row>
             </ListGroup.Item>
           ))}
